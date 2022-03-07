@@ -39,15 +39,7 @@ public class MethodChecker {
     public void methodDeclare(FileReport report, String line, int lineNumber) {
         String trimmedLine = line.trim();
         MethodDeclarationViolation MDV = new MethodDeclarationViolation();
-        if ((trimmedLine.contains("{") || trimmedLine.length() < 1) && methodString.matches(invalidLineMethodRegex)) {
-            methodStarted = true;
-            if (trimmedLine.contains("}")) {
-                methodCount++;
-                methodLength++;
-                methodStarted = false;
-                System.out.println("Hej " +lineNumber + ": Method Length: " + methodLength + "| Method Count: " + methodCount);
-            }
-        }
+        
         // Add rule 6.4.4 6.4.1
         if (trimmedLine.matches(validMethodRegex)) {
             methodStarted = true;
@@ -61,43 +53,44 @@ public class MethodChecker {
             System.out.println("Line: " + lineNumber + ": { not on the same line as declaration.");
         }
         // Covers rule 6.4.1
-        else if (trimmedLine.matches(invalidSpaceParenthesMethodRegex)) {
+        if (trimmedLine.matches(invalidSpaceParenthesMethodRegex)) {
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "No space between a method name and the parenthesis '(' starting its parameter list.";
             methodString = trimmedLine;
             System.out.println("Line: " + lineNumber + ": space issue parenthesis.");
         }
-        // Makes method length count not work at all.
         if (trimmedLine.matches(invalidNullBraceMethodRegex)) {
+            methodCount++;
+            MDV.lineNumber = lineNumber;
+            MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
+            System.out.println("Line: " + lineNumber + ": Contains space between '{' and '}'.");
+            System.out.println(lineNumber + ": Method Length: " + methodLength + "| Method Count: " + methodCount);
+        }
+        if ((trimmedLine.contains("{") || trimmedLine.length() < 1) && methodString.matches(invalidLineMethodRegex)) {
             methodStarted = true;
             if (trimmedLine.contains("}")) {
                 methodCount++;
-                methodStarted = false;  
+                methodStarted = false;
+                methodString = "";
                 System.out.println(lineNumber + ": Method Length: " + methodLength + "| Method Count: " + methodCount);
             }
         }
         // När alla startas lägg till ängd bara då! Om speciell lägg till två eller fler
         if (methodStarted) {
-            if (trimmedLine.contains("{") && methodString.matches(invalidLineMethodRegex)) {
-                methodLength += 2; // Does not cover if they make more spaces between declaration and  first "{". Consider for line 23,24,25 in TestFile
-                methodString = "";
-            }
-            methodLength++;
             if (trimmedLine.contains("{")) {
                 methodOpenBrace++;
             }
             if (trimmedLine.contains("}")) {
                 methodEndBrace++;
 
-                if (trimmedLine.length() > 1) {
+                if (trimmedLine.length() > 1 && !trimmedLine.matches(validMethodRegex)) {
                     MDV.lineNumber = lineNumber;
+                    MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
                     System.out.println("Line: " + lineNumber + ": } should be alone on line.");
-                    MDV.declarationViolation = "Closing brace '}' should start a line by itself, except for when it is a null statement.";
                 }
                 if (methodEnd()) {
                     methodStarted = false;
                     methodCount++;
-                    // methodLength = 0;
                     // Add into report here and then reset values
                     System.out.println(lineNumber + ": Method Length: " + methodLength + "| Method Count: " + methodCount);
                 }

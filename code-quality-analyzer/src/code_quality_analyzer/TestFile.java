@@ -12,11 +12,7 @@ public class TestFile {
 
     public void randomMethod() {}
 
-    public void akafus()
-    
-    {}
-
-    public void akadfsfus()
+    public void wrongLine()
     {}
 
     private int testIntMethod ()
