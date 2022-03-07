@@ -8,11 +8,9 @@ public class MethodChecker {
     String invalidLineMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\)";
     String invalidSpaceParenthesMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) \\([^\\)]*\\) *(\\{?|[^;]) *(\\{)*(\\})*";
     String invalidNullBraceMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\) *(\\{?|[^;]) (\\{) +(\\})";
-    private String validNullBraceMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\) *(\\{?|[^;]) (\\{)(\\})";
+    private String methodName = "";
+    private String previousLine = "";
     private boolean methodStarted;
-    private boolean badMethodStarted;
-    private String methodString = "";
-    private String methodStartString = "";
     private int methodOpenBrace;
     private int methodEndBrace = 0;
     private int methodLength = 0;
@@ -42,42 +40,31 @@ public class MethodChecker {
         String trimmedLine = line.trim();
         MethodDeclarationViolation MDV = new MethodDeclarationViolation();
         
-        // Add rule 6.4.4 6.4.1
-        if (trimmedLine.matches(validNullBraceMethodRegex)) {
-            methodString = trimmedLine;
-        }
         if (trimmedLine.matches(validMethodRegex)) {
+            methodName = trimmedLine;
             methodStarted = true;
-            methodString = trimmedLine;
         }
-        // Covers rule 6.4.2
         else if (trimmedLine.matches(invalidLineMethodRegex)) {
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "First '{' is not on the same line as the declaration statement.";
+            methodName = trimmedLine;
             methodStarted = true;
-            methodString = trimmedLine;
-            // System.out.println("Line: " + lineNumber + ": { not on the same line as declaration.");
         }
-        // Covers rule 6.4.1
         if (trimmedLine.matches(invalidSpaceParenthesMethodRegex)) {
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "No space between a method name and the parenthesis '(' starting its parameter list.";
-            methodString = trimmedLine;
-            // System.out.println("Line: " + lineNumber + ": space issue parenthesis.");
         }
         if (trimmedLine.matches(invalidNullBraceMethodRegex)) {
             methodLength = 1;
             methodCount++;
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
-            // System.out.println("Line: " + lineNumber + ": Contains space between '{' and '}'.");
-            System.out.println(lineNumber + ": Method Length: " + methodLength + "| Method Count: " + methodCount);
+            methodName = trimmedLine;
         }
 
         if (methodStarted) {
-            // if (methodString.matches(validMethodRegex)) {
-                methodLength++;
-            // }
+            methodLength++;
+
             if (trimmedLine.contains("{")) {
                 methodOpenBrace++;
             }
@@ -87,13 +74,10 @@ public class MethodChecker {
                 if (trimmedLine.length() > 1 && !trimmedLine.matches(validMethodRegex)) {
                     MDV.lineNumber = lineNumber;
                     MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
-                    // System.out.println("Line: " + lineNumber + ": } should be alone on line.");
                 }
                 if (methodEnd()) {
                     methodStarted = false;
                     methodCount++;
-                    // Add into report here and then reset values
-                    System.out.println(lineNumber + ": Method Length: " + methodLength + "| Method Count: " + methodCount);
                 }
             }
         }
