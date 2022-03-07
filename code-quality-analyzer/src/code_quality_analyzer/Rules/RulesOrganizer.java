@@ -10,7 +10,7 @@ public class RulesOrganizer {
     public void rulesChecker(FileReport report, String line, int lineNumber) {
         ToL.lineTypeCount(report, line);
         LL.maxLineLength(report, line, lineNumber);
-        MC.methodCheck(report, line, lineNumber);
+        MC.methodDeclarationCheck(report, line, lineNumber);
     }
 
 }

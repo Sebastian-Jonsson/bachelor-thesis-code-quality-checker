@@ -23,7 +23,7 @@ public class MethodChecker {
     // Rule 6.4 can help
     // https://www.oracle.com/java/technologies/javase/codeconventions-declarations.html#381
     // A method has 2-5 words with one space between all, at the end of the third word it should have a parenthesis public void method() and then count the amount of { to see how much internal content it has and should end at the time the } appears the same amount of times as {.
-    public void methodCheck(FileReport report, String line, int lineNumber) {
+    public void methodDeclarationCheck(FileReport report, String line, int lineNumber) {
         classStarted = true;
         interfaceStarted = true;
         if (classStarted || interfaceStarted) {

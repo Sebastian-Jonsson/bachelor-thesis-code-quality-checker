@@ -10,21 +10,26 @@ public class TypeOfLine {
 
         if (singleLineComment(trimmedLine)) {
             report.amountOfComments++;
-        } else if (multiLineStart(trimmedLine)) {
+        } 
+        else if (multiLineStart(trimmedLine)) {
             commentStarted = true;
             report.linesOfComments++;
-        } else if (commentStarted) {
+        } 
+        else if (commentStarted) {
 
             if (multiLineEnd(trimmedLine)) {
                 commentStarted = false;
                 report.amountOfComments++;
                 report.linesOfComments++;
-            } else {
+            } 
+            else {
                 report.linesOfComments++;
             }
-        } else if (blankLineChecker(trimmedLine)) {
+        } 
+        else if (blankLineChecker(trimmedLine)) {
             report.blankLines++;
-        } else {
+        } 
+        else {
             report.linesOfCode++;
         }
     }
