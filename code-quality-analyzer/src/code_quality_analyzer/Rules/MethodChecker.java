@@ -45,7 +45,7 @@ public class MethodChecker {
                 methodCount++;
                 methodLength++;
                 methodStarted = false;
-                System.out.println("abababs" +lineNumber + ": Method Length: " + methodLength + "| Method Count: " + methodCount);
+                System.out.println("Hej " +lineNumber + ": Method Length: " + methodLength + "| Method Count: " + methodCount);
             }
         }
         // Add rule 6.4.4 6.4.1

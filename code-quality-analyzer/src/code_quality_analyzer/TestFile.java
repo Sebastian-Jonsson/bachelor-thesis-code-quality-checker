@@ -8,7 +8,6 @@ public class TestFile {
         }
     }
 
-    // This method is not counted
     public void nullMethod() { }
 
     public void randomMethod() {}
