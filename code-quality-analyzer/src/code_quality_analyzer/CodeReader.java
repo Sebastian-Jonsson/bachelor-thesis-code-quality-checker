@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 import code_quality_analyzer.Rules.RulesOrganizer;
 // import java.util.stream.Stream;
 import code_quality_analyzer.Rules.LineLength.LineLengthViolation;
+import code_quality_analyzer.Rules.MethodChecker.MethodDeclarationViolation;
 
 
 public class CodeReader {
@@ -33,7 +34,7 @@ public class CodeReader {
         
         File inputFolder = new File("D:/Kurser/2DV50E/static-java-analyzer/bachelor-thesis-code-quality-checker/code-quality-analyzer/src/code_quality_analyzer/TestFile.java");
         processFiles(inputFolder, f -> System.out.println(f.getAbsolutePath()));
-        tempFileReport();
+        // tempFileReport();
         // scan.close();
     }
 
@@ -57,6 +58,9 @@ public class CodeReader {
                     "\nLine Length Violation at line: " + lineLength.lineNumber 
                     + " - Actual Length: " + lineLength.actualLength
                 );
+            }
+            for (MethodDeclarationViolation declarationViolation : report.methodDeclarationViolations) {
+
             }
         };
         System.out.println(fileReport.toString());

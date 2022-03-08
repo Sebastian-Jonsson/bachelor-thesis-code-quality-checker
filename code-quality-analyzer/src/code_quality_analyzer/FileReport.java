@@ -19,5 +19,6 @@ public class FileReport {
     // Rules Implementations
     public List<LineLengthViolation> lineLengthViolations = new ArrayList<LineLengthViolation>();
     public List<MethodDeclarationViolation> methodDeclarationViolations = new ArrayList<MethodDeclarationViolation>();
+    public int classOrInterfaceLength = 0;
 
 }

@@ -3,10 +3,14 @@ package code_quality_analyzer.Rules;
 import code_quality_analyzer.FileReport;
 
 public class MethodChecker {
-    String validMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+)\\([^\\)]*\\) *(\\{?|[^;]) (\\{)(\\})*";
-    String invalidLineMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\)";
-    String invalidSpaceParenthesMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) \\([^\\)]*\\) *(\\{?|[^;]) *(\\{)*(\\})*";
-    String invalidNullBraceMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\) *(\\{?|[^;]) (\\{) +(\\})";
+    private String validMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+)\\([^\\)]*\\) *(\\{?|[^;]) (\\{)(\\})*";
+    private String invalidLineMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\)";
+    private String invalidSpaceParenthesMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) \\([^\\)]*\\) *(\\{?|[^;]) *(\\{)*(\\})*";
+    private String invalidNullBraceMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\) *(\\{?|[^;]) (\\{) +(\\})";
+
+    // Uppercase of classname/interface first 
+    private String classOrInterfaceRegex = "(public|protected|private|static|\\s) +(class|interface|\\s) [\\w\\<\\>\\[\\]]+\\ *(\\{?|[^;]) (\\{)*";
+
     private String methodName = ""; /** For use in identifying the method where errors occured. */
     private String previousLine = "";
     private boolean methodStarted;
@@ -16,21 +20,30 @@ public class MethodChecker {
     private int methodCount = 0;
 
     private boolean classStarted;
-    private boolean interfaceStarted;
     private int parentLength = 0;
+    private int parentOpenBrace = 0;
+    private int parentEndBrace = 0;
 
-    // Rule 6.4 can help
+    // Rule 6.4
     // https://www.oracle.com/java/technologies/javase/codeconventions-declarations.html#381
     public void methodDeclarationCheck(FileReport report, String line, int lineNumber) {
-        classStarted = true;
-        interfaceStarted = true;
-        if (classStarted || interfaceStarted) {
+
+        if (line.matches(classOrInterfaceRegex) || classStarted) {
+            // System.out.println("sup");
+            if (line.contains("{")) {
+                parentOpenBrace++;
+            }
+            if (line.contains("}")) {
+                parentEndBrace++;
+            }
+            if (parentOpenBrace == parentEndBrace) {
+                classStarted = false;
+                System.out.println(lineNumber);
+            }
+            
+            classStarted = true;
             parentLength++;
             methodDeclare(report, line, lineNumber);
-            // methodStart(report, line, lineNumber);
-            // System.out.println(lineNumber + ": " + methodOpenBrace + " " +  methodEndBrace);
-            // System.out.println(methodLength);
-            
         }
     }
 
@@ -105,7 +118,7 @@ public class MethodChecker {
     }
 
     private void testLogger(MethodDeclarationViolation MDV) {
-        // System.out.println("\nMethod Name: " + MDV.methodName + " | Line: " + MDV.lineNumber + " | Violation: " + MDV.declarationViolation);
+        System.out.println("\nMethod Name: " + MDV.methodName + " | Line: " + MDV.lineNumber + " | Violation: " + MDV.declarationViolation);
     }
     
     private boolean methodEnd() {
@@ -127,14 +140,9 @@ public class MethodChecker {
         }
     }
 
-    private boolean isClass(String trimmedLine) {
-        if (trimmedLine.contains(" class ")) {
-            classStarted = true;
-        }
-        return trimmedLine.contains(" class ");
-    }
-
+    /** Existing in Classes or Interfaces */
     public class MethodDeclarationViolation {
+        public int parentLength = 0;
         public String methodName = "";
         public int lineNumber = 0;
         public String declarationViolation = "";
