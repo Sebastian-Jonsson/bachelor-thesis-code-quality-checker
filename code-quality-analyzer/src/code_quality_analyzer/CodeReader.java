@@ -33,7 +33,7 @@ public class CodeReader {
         
         File inputFolder = new File("D:/Kurser/2DV50E/static-java-analyzer/bachelor-thesis-code-quality-checker/code-quality-analyzer/src/code_quality_analyzer/TestFile.java");
         processFiles(inputFolder, f -> System.out.println(f.getAbsolutePath()));
-        // tempFileReport();
+        tempFileReport();
         // scan.close();
     }
 

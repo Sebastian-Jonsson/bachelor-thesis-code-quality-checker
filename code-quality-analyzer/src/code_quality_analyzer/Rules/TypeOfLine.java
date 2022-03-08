@@ -14,6 +14,11 @@ public class TypeOfLine {
         else if (multiLineStart(trimmedLine)) {
             commentStarted = true;
             report.linesOfComments++;
+            if (oneLineJavaComment(trimmedLine)) {
+                report.linesOfComments++;
+                report.amountOfComments++;
+                commentStarted = false;
+            }    
         } 
         else if (commentStarted) {
 
@@ -48,5 +53,9 @@ public class TypeOfLine {
 
     private boolean multiLineEnd(String line) {
         return line.endsWith("*/") && commentStarted;
+    }
+
+    private boolean oneLineJavaComment(String line) {
+        return line.startsWith("/*") && line.endsWith("*/");
     }
 }
