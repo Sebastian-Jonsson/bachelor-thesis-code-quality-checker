@@ -15,6 +15,7 @@ public class TestFile {
     public void wrongLine()
     {}
 
+    /** */
     private int testIntMethod ()
     {
         return 0;}

@@ -4,7 +4,6 @@ import code_quality_analyzer.FileReport;
 
 public class MethodChecker {
     String validMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+)\\([^\\)]*\\) *(\\{?|[^;]) (\\{)(\\})*";
-    // Example: public void methodName()
     String invalidLineMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\)";
     String invalidSpaceParenthesMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) \\([^\\)]*\\) *(\\{?|[^;]) *(\\{)*(\\})*";
     String invalidNullBraceMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\) *(\\{?|[^;]) (\\{) +(\\})";
@@ -41,10 +40,12 @@ public class MethodChecker {
         MethodDeclarationViolation MDV = new MethodDeclarationViolation();
         
         if (trimmedLine.matches(validMethodRegex)) {
+            lineEndComment(MDV, lineNumber);
             methodName = trimmedLine;
             methodStarted = true;
         }
         else if (trimmedLine.matches(invalidLineMethodRegex)) {
+            lineEndComment(MDV, lineNumber);
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "First '{' is not on the same line as the declaration statement.";
             methodName = trimmedLine;
@@ -84,12 +85,24 @@ public class MethodChecker {
         else {
             methodLength = 0;
         }
-
+        previousLine = trimmedLine;
     }
     
-    // Covers rule 6.4.3
     private boolean methodEnd() {
         return methodOpenBrace == methodEndBrace;
+    }
+
+    private void lineEndComment(MethodDeclarationViolation MDV, int lineNumber) {
+        if (previousLine.length() > 0) {
+            if (previousLine.contains("//") || previousLine.contains("*/")) {
+                // Java refuses the does not contain statements, adding else works.
+            }
+            else {
+                System.out.println(lineNumber-1 + ": Does not take comments into account. Comments = blank space in current version.");
+                MDV.lineNumber = lineNumber - 1;
+                MDV.declarationViolation = "Methods are separated by a blank line."; 
+            }
+        }
     }
 
     private boolean isClass(String trimmedLine) {
