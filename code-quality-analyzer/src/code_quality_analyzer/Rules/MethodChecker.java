@@ -105,7 +105,7 @@ public class MethodChecker {
     }
 
     private void testLogger(MethodDeclarationViolation MDV) {
-        System.out.println("\nMethod Name: " + MDV.methodName + " | Line: " + MDV.lineNumber + " | Violation: " + MDV.declarationViolation);
+        // System.out.println("\nMethod Name: " + MDV.methodName + " | Line: " + MDV.lineNumber + " | Violation: " + MDV.declarationViolation);
     }
     
     private boolean methodEnd() {

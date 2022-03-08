@@ -68,8 +68,9 @@ public class CodeReader {
                 processFiles(file1, fileConsumer);
             }
         } else {
-            readFile(dir);
-            // fileConsumer.accept(dir); // Only prints and limits capabilities.
+            if (dir.toString().endsWith(".java")) {
+                readFile(dir);
+            }
         }
     }
 
