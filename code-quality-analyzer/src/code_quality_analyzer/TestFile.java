@@ -10,6 +10,7 @@ public class TestFile {
 
     public void nullMethod() { }
 
+    int wrongPlaceInteger = 0;
     public void randomMethod() {}
 
     public void wrongLine()

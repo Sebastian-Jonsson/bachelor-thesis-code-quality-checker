@@ -7,7 +7,7 @@ public class MethodChecker {
     String invalidLineMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\)";
     String invalidSpaceParenthesMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) \\([^\\)]*\\) *(\\{?|[^;]) *(\\{)*(\\})*";
     String invalidNullBraceMethodRegex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\) *(\\{?|[^;]) (\\{) +(\\})";
-    private String methodName = "";
+    private String methodName = ""; /** For use in identifying the method where errors occured. */
     private String previousLine = "";
     private boolean methodStarted;
     private int methodOpenBrace;
@@ -21,7 +21,6 @@ public class MethodChecker {
 
     // Rule 6.4 can help
     // https://www.oracle.com/java/technologies/javase/codeconventions-declarations.html#381
-    // A method has 2-5 words with one space between all, at the end of the third word it should have a parenthesis public void method() and then count the amount of { to see how much internal content it has and should end at the time the } appears the same amount of times as {.
     public void methodDeclarationCheck(FileReport report, String line, int lineNumber) {
         classStarted = true;
         interfaceStarted = true;
@@ -37,70 +36,93 @@ public class MethodChecker {
 
     public void methodDeclare(FileReport report, String line, int lineNumber) {
         String trimmedLine = line.trim();
+        // TODO: MDV into FileReport proper.
         MethodDeclarationViolation MDV = new MethodDeclarationViolation();
         
         if (trimmedLine.matches(validMethodRegex)) {
-            lineEndComment(MDV, lineNumber);
             methodName = trimmedLine;
+            lineEndComment(report, MDV, lineNumber);
             methodStarted = true;
         }
         else if (trimmedLine.matches(invalidLineMethodRegex)) {
-            lineEndComment(MDV, lineNumber);
+            methodName = trimmedLine;
+            lineEndComment(report, MDV, lineNumber);
+            MDV.methodName = methodName;
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "First '{' is not on the same line as the declaration statement.";
-            methodName = trimmedLine;
+            report.methodDeclarationViolations.add(MDV);
+            testLogger(MDV);
             methodStarted = true;
         }
         if (trimmedLine.matches(invalidSpaceParenthesMethodRegex)) {
+            MDV.methodName = methodName;
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "No space between a method name and the parenthesis '(' starting its parameter list.";
+            report.methodDeclarationViolations.add(MDV);
+            testLogger(MDV);
         }
         if (trimmedLine.matches(invalidNullBraceMethodRegex)) {
+            methodName = trimmedLine;
             methodLength = 1;
             methodCount++;
+            MDV.methodName = methodName;
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
-            methodName = trimmedLine;
+            report.methodDeclarationViolations.add(MDV);
+            testLogger(MDV);
         }
 
         if (methodStarted) {
-            methodLength++;
-
-            if (trimmedLine.contains("{")) {
-                methodOpenBrace++;
-            }
-            if (trimmedLine.contains("}")) {
-                methodEndBrace++;
-
-                if (trimmedLine.length() > 1 && !trimmedLine.matches(validMethodRegex)) {
-                    MDV.lineNumber = lineNumber;
-                    MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
-                }
-                if (methodEnd()) {
-                    methodStarted = false;
-                    methodCount++;
-                }
-            }
+            methodStart(report, MDV, trimmedLine, lineNumber);
         }
         else {
             methodLength = 0;
         }
         previousLine = trimmedLine;
     }
+
+    private void methodStart(FileReport report, MethodDeclarationViolation MDV, String trimmedLine, int lineNumber) {
+        methodLength++;
+
+        if (trimmedLine.contains("{")) {
+            methodOpenBrace++;
+        }
+        if (trimmedLine.contains("}")) {
+            methodEndBrace++;
+
+            if (trimmedLine.length() > 1 && !trimmedLine.matches(validMethodRegex)) {
+                MDV.methodName = methodName;
+                MDV.lineNumber = lineNumber;
+                MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
+                report.methodDeclarationViolations.add(MDV);
+                testLogger(MDV);
+            }
+            if (methodEnd()) {
+                methodStarted = false;
+                methodCount++;
+            }
+        }
+    }
+
+    private void testLogger(MethodDeclarationViolation MDV) {
+        System.out.println("\nMethod Name: " + MDV.methodName + " | Line: " + MDV.lineNumber + " | Violation: " + MDV.declarationViolation);
+    }
     
     private boolean methodEnd() {
         return methodOpenBrace == methodEndBrace;
     }
 
-    private void lineEndComment(MethodDeclarationViolation MDV, int lineNumber) {
+    private void lineEndComment(FileReport report, MethodDeclarationViolation MDV, int lineNumber) {
         if (previousLine.length() > 0) {
             if (previousLine.contains("//") || previousLine.contains("*/")) {
                 // Java refuses the does not contain statements, adding else works.
             }
             else {
-                System.out.println(lineNumber-1 + ": Does not take comments into account. Comments = blank space in current version.");
+                MDV.methodName = methodName;
                 MDV.lineNumber = lineNumber - 1;
                 MDV.declarationViolation = "Methods are separated by a blank line."; 
+                report.methodDeclarationViolations.add(MDV);
+                testLogger(MDV);
             }
         }
     }
@@ -113,6 +135,7 @@ public class MethodChecker {
     }
 
     public class MethodDeclarationViolation {
+        public String methodName = "";
         public int lineNumber = 0;
         public String declarationViolation = "";
     }
