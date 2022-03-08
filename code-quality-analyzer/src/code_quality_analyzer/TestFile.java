@@ -20,4 +20,10 @@ public class TestFile {
     private int testIntMethod ()
     {
         return 0;}
+
+    public class TestInternal {
+        
+        public void subClassMethod() 
+        {}
+    }
 }
