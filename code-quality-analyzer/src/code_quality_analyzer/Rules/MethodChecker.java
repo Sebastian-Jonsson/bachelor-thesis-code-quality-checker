@@ -20,6 +20,7 @@ public class MethodChecker {
     private int methodCount = 0;
 
     private boolean classStarted;
+    private boolean classEnded;
     private int parentLength = 0;
     private int parentOpenBrace = 0;
     private int parentEndBrace = 0;
@@ -28,8 +29,8 @@ public class MethodChecker {
     // https://www.oracle.com/java/technologies/javase/codeconventions-declarations.html#381
     public void methodDeclarationCheck(FileReport report, String line, int lineNumber) {
 
+        /** Assumes the class end brace is on it's own line. */
         if (line.matches(classOrInterfaceRegex) || classStarted) {
-            // System.out.println("sup");
             if (line.contains("{")) {
                 parentOpenBrace++;
             }
@@ -38,12 +39,15 @@ public class MethodChecker {
             }
             if (parentOpenBrace == parentEndBrace) {
                 classStarted = false;
-                System.out.println(lineNumber);
+                classEnded = true;
             }
             
             classStarted = true;
             parentLength++;
             methodDeclare(report, line, lineNumber);
+        }
+        if (classEnded) {
+            parentLength++;
         }
     }
 
