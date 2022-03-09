@@ -11,6 +11,7 @@ import java.util.List;
 // import java.util.Scanner;
 import java.util.function.Consumer;
 
+import code_quality_analyzer.Rules.RulesConfig;
 import code_quality_analyzer.Rules.RulesOrganizer;
 // import java.util.stream.Stream;
 import code_quality_analyzer.Rules.LineLength.LineLengthViolation;
@@ -19,6 +20,7 @@ import code_quality_analyzer.Rules.MethodChecker.MethodDeclarationViolation;
 
 public class CodeReader {
     // ReportFormat[] reportCollection;
+    RulesConfig rule = new RulesConfig();
     RulesOrganizer Rules = new RulesOrganizer();
     List<FileReport> reportList = new ArrayList<FileReport>();
 
@@ -46,7 +48,7 @@ public class CodeReader {
         for (FileReport report : reportList) {
             fileReport.append(
                 "\n\nMetaData:\nFile: " + report.filePath
-                + "\nTotal Lines: " + report.totalLines
+                + "\nTotal Lines: " + report.totalLines + " | Max File Length Violation: " + (report.totalLines > rule.MAX_FILE_LENGTH)
                 + "\nLines of Code: " + report.linesOfCode
                 + " Blank Lines: " + report.blankLines
                 + " Lines of Comments: " + report.linesOfComments
