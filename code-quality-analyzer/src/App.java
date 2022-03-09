@@ -7,7 +7,8 @@ public class App {
         CodeReader CR = new CodeReader();
         try {
             CR.getUserInput();
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             e.printStackTrace();
         }
     }

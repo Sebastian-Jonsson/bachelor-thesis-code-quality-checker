@@ -34,7 +34,7 @@ public class CodeReader {
         
         File inputFolder = new File("D:/Kurser/2DV50E/static-java-analyzer/bachelor-thesis-code-quality-checker/code-quality-analyzer/src/code_quality_analyzer/TestFile.java");
         processFiles(inputFolder, f -> System.out.println(f.getAbsolutePath()));
-        // tempFileReport();
+        tempFileReport();
         // scan.close();
     }
 
@@ -47,11 +47,11 @@ public class CodeReader {
             fileReport.append(
                 "\n\nMetaData:\nFile: " + report.filePath
                 + "\nTotal Lines: " + report.totalLines
-                + "\nLoC: " + report.linesOfCode
+                + "\nLines of Code: " + report.linesOfCode
                 + " Blank Lines: " + report.blankLines
                 + " Lines of Comments: " + report.linesOfComments
                 + " Amount of Comments: " + report.amountOfComments 
-                + "\nRules: \nTotal Line Length Violations: " + report.lineLengthViolations.size()
+                + "\n\nRules: \nTotal Line Length Violations: " + report.lineLengthViolations.size()
             );
             for (LineLengthViolation lineLength : report.lineLengthViolations) {
                 fileReport.append(
@@ -59,8 +59,14 @@ public class CodeReader {
                     + " - Actual Length: " + lineLength.actualLength
                 );
             }
+            fileReport.append("\n\n\nMethod Declaration Violations below: " + report.methodDeclarationViolations.size());
             for (MethodDeclarationViolation declarationViolation : report.methodDeclarationViolations) {
-
+                fileReport.append(
+                    "\n\nParent Class or Interface Length: " + declarationViolation.parentLength
+                    + "\nLine: " + declarationViolation.lineNumber + " | Method: " + declarationViolation.methodName
+                    + " | Method Length: " + declarationViolation.methodLength
+                    + "\nDescription: " + declarationViolation.declarationViolation
+                );
             }
         };
         System.out.println(fileReport.toString());

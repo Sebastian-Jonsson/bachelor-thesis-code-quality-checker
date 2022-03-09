@@ -11,6 +11,7 @@ public class RulesOrganizer {
         ToL.lineTypeCount(report, line);
         LL.maxLineLength(report, line, lineNumber);
         MC.methodDeclarationCheck(report, line, lineNumber);
+        
     }
 
 }
