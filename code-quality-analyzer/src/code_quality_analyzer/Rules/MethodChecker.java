@@ -96,6 +96,7 @@ public class MethodChecker {
             MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
             methodDeclarationViolations.add(MDV);
             appendMethodData(methodName, lineNumber, methodLength);
+            // methodLength = 0;
             testLogger(MDV);
         }
 
@@ -105,6 +106,7 @@ public class MethodChecker {
         else {
             methodLength = 0;
         }
+
         previousLine = trimmedLine;
     }
 
@@ -127,6 +129,7 @@ public class MethodChecker {
             }
             if (methodEnd()) {
                 appendMethodData(methodName, lineNumber, methodLength);
+                // methodLength = 0;
                 methodStarted = false;
                 methodCount++;
             }
@@ -140,7 +143,7 @@ public class MethodChecker {
     private void appendMethodData(String methodName, int lineNumber, int methodLength) {
 
         for (MethodDeclarationViolation declarationViolation : methodDeclarationViolations) {
-            if (declarationViolation.methodName == methodName && declarationViolation.lineNumber == lineNumber) {
+            if (declarationViolation.methodName == methodName) {
                 declarationViolation.methodLength = methodLength;
             }
         }

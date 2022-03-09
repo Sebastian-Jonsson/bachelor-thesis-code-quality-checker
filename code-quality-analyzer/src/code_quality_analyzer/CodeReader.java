@@ -21,8 +21,9 @@ import code_quality_analyzer.Rules.MethodChecker.MethodDeclarationViolation;
 public class CodeReader {
     // ReportFormat[] reportCollection;
     RulesConfig rule = new RulesConfig();
-    RulesOrganizer Rules = new RulesOrganizer();
     List<FileReport> reportList = new ArrayList<FileReport>();
+    String projectsFolder = "D:/Kurser/2DV50E/static-java-analyzer/test-projects/";
+    String specificFile = "D:/Kurser/2DV50E/static-java-analyzer/bachelor-thesis-code-quality-checker/code-quality-analyzer/src/code_quality_analyzer/TestFile.java";
 
     /**
      * Collects user input.
@@ -32,9 +33,11 @@ public class CodeReader {
         // Scanner scan = new Scanner(System.in);
         // System.out.print("Type the path to the input folder: ");
         // String inputFolder = scan.nextLine();
-        // System.out.println(inputFolder);s
+        // System.out.println(inputFolder);
+
+        // Project name and report name of project to be the position between /<name>/ when writing to file
         
-        File inputFolder = new File("D:/Kurser/2DV50E/static-java-analyzer/bachelor-thesis-code-quality-checker/code-quality-analyzer/src/code_quality_analyzer/TestFile.java");
+        File inputFolder = new File(projectsFolder);
         processFiles(inputFolder, f -> System.out.println(f.getAbsolutePath()));
         tempFileReport();
         // scan.close();
@@ -87,25 +90,26 @@ public class CodeReader {
     }
 
     private void readFile(File inputFile) throws IOException {
-            FileInputStream fileInputStream = new FileInputStream(inputFile);
-            InputStreamReader inStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader buffReader = new BufferedReader(inStreamReader);
+        RulesOrganizer Rules = new RulesOrganizer();
+        FileInputStream fileInputStream = new FileInputStream(inputFile);
+        InputStreamReader inStreamReader = new InputStreamReader(fileInputStream);
+        BufferedReader buffReader = new BufferedReader(inStreamReader);
 
-            FileReport report = new FileReport();
-            String line = "";
-            int lineNumber = 0;
+        FileReport report = new FileReport();
+        String line = "";
+        int lineNumber = 0;
 
-            report.filePath = inputFile.getAbsolutePath();
+        report.filePath = inputFile.getAbsolutePath();
+        line = buffReader.readLine();
+
+        while (line != null) {
+            lineNumber++;
+            Rules.rulesChecker(report, line, lineNumber);
+            report.totalLines++;
             line = buffReader.readLine();
-
-            while (line != null) {
-                lineNumber++;
-                Rules.rulesChecker(report, line, lineNumber);
-                report.totalLines++;
-                line = buffReader.readLine();
-            }
-            buffReader.close();
-            reportList.add(report);
+        }
+        buffReader.close();
+        reportList.add(report);
     }
 
 }
