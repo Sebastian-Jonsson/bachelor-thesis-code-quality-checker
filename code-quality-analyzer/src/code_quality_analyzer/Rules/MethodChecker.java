@@ -16,7 +16,7 @@ public class MethodChecker {
     // Uppercase of classname/interface first 
     private String classOrInterfaceRegex = "(public|protected|private|static|\\s) +(class|interface|\\s) [\\w\\<\\>\\[\\]]+\\ *(\\{?|[^;]) (\\{)*";
 
-    private String methodName = ""; /** For use in identifying the method where errors occured. */
+    private String methodName = "";
     private String previousLine = "";
     private boolean methodStarted;
     private int methodOpenBrace;
@@ -60,8 +60,7 @@ public class MethodChecker {
 
     public void methodDeclare(String line, int lineNumber) {
         String trimmedLine = line.trim();
-        // TODO: MDV into FileReport proper.
-        
+
         if (trimmedLine.matches(validMethodRegex)) {
             methodName = trimmedLine;
             lineEndComment(lineNumber);
@@ -75,7 +74,6 @@ public class MethodChecker {
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "First '{' is not on the same line as the declaration statement.";
             methodDeclarationViolations.add(MDV);
-            testLogger(MDV);
             methodStarted = true;
         }
         if (trimmedLine.matches(invalidSpaceParenthesMethodRegex)) {
@@ -84,7 +82,6 @@ public class MethodChecker {
             MDV.lineNumber = lineNumber;
             MDV.declarationViolation = "No space between a method name and the parenthesis '(' starting its parameter list.";
             methodDeclarationViolations.add(MDV);
-            testLogger(MDV);
         }
         if (trimmedLine.matches(invalidNullBraceMethodRegex)) {
             MethodDeclarationViolation MDV = new MethodDeclarationViolation();
@@ -96,8 +93,6 @@ public class MethodChecker {
             MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
             methodDeclarationViolations.add(MDV);
             appendMethodData(methodName, lineNumber, methodLength);
-            // methodLength = 0;
-            testLogger(MDV);
         }
 
         if (methodStarted) {
@@ -124,20 +119,14 @@ public class MethodChecker {
                 MDV.methodName = methodName;
                 MDV.lineNumber = lineNumber;
                 MDV.declarationViolation = "Closing brace '}' starts a line by itself indented to match its corresponding opening statement, except when it is a null statement the '}' should appear immediately after the '{'";
-                methodDeclarationViolations.add(MDV);
-                testLogger(MDV);
+                methodDeclarationViolations.add(MDV);;
             }
             if (methodEnd()) {
                 appendMethodData(methodName, lineNumber, methodLength);
-                // methodLength = 0;
                 methodStarted = false;
                 methodCount++;
             }
         }
-    }
-
-    private void testLogger(MethodDeclarationViolation MDV) {
-        // System.out.println("\nMethod Name: " + MDV.methodName + " | Line: " + MDV.lineNumber + " | Violation: " + MDV.declarationViolation);
     }
 
     private void appendMethodData(String methodName, int lineNumber, int methodLength) {
@@ -150,9 +139,10 @@ public class MethodChecker {
     }
 
     private void appendClassData() {
+
         for (MethodDeclarationViolation declarationViolation : methodDeclarationViolations) {
-                declarationViolation.parentTotalMethods = methodCount;
-                declarationViolation.parentLength = parentLength;
+            declarationViolation.parentTotalMethods = methodCount;
+            declarationViolation.parentLength = parentLength;
         }
     }
     
@@ -172,7 +162,6 @@ public class MethodChecker {
                 MDV.lineNumber = lineNumber - 1;
                 MDV.declarationViolation = "Methods are separated by a blank line."; 
                 methodDeclarationViolations.add(MDV);
-                testLogger(MDV);
             }
         }
     }
