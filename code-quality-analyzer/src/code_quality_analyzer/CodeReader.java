@@ -25,8 +25,11 @@ public class CodeReader {
     String projectsFolder = "D:/Kurser/2DV50E/static-java-analyzer/test-projects/";
     String specificFile = "D:/Kurser/2DV50E/static-java-analyzer/bachelor-thesis-code-quality-checker/code-quality-analyzer/src/code_quality_analyzer/TestFile.java";
 
+    String languageSupport = ".java";
+
     /**
      * Collects user input.
+     * TODO: Select manner in which the project is chosen.
      * @throws IOException
      */
     public void getUserInput() throws IOException {
@@ -43,47 +46,14 @@ public class CodeReader {
         // scan.close();
     }
 
-    /**
-     * TODO: move this method.
-     */
-    private void tempFileReport() {
-        StringBuilder fileReport = new StringBuilder();
-        for (FileReport report : reportList) {
-            fileReport.append(
-                "\n\nMetaData:\nFile: " + report.filePath
-                + "\nTotal Lines: " + report.totalLines + " | Max File Length Violation: " + (report.totalLines > rule.MAX_FILE_LENGTH)
-                + "\nLines of Code: " + report.linesOfCode
-                + " Blank Lines: " + report.blankLines
-                + " Lines of Comments: " + report.linesOfComments
-                + " Amount of Comments: " + report.amountOfComments 
-                + "\n\nRules: \nTotal Line Length Violations: " + report.lineLengthViolations.size()
-            );
-            for (LineLengthViolation lineLength : report.lineLengthViolations) {
-                fileReport.append(
-                    "\nLine Length Violation at line: " + lineLength.lineNumber 
-                    + " - Actual Length: " + lineLength.actualLength
-                );
-            }
-            fileReport.append("\n\n\nMethod Declaration Violations below: " + report.methodDeclarationViolations.size());
-            for (MethodDeclarationViolation declarationViolation : report.methodDeclarationViolations) {
-                fileReport.append(
-                    "\n\nParent Class or Interface Length: " + declarationViolation.parentLength
-                    + "\nLine: " + declarationViolation.lineNumber + " | Method: " + declarationViolation.methodName
-                    + " | Method Length: " + declarationViolation.methodLength
-                    + "\nDescription: " + declarationViolation.declarationViolation
-                );
-            }
-        };
-        System.out.println(fileReport.toString());
-    }
-
     private void processFiles(File dir, Consumer<File> fileConsumer) throws IOException {
         if (dir.isDirectory()) {
             for (File file1 : dir.listFiles()) {
                 processFiles(file1, fileConsumer);
             }
-        } else {
-            if (dir.toString().endsWith(".java")) {
+        } 
+        else {
+            if (dir.toString().endsWith(languageSupport)) {
                 readFile(dir);
             }
         }
@@ -110,6 +80,42 @@ public class CodeReader {
         }
         buffReader.close();
         reportList.add(report);
+    }
+
+    /**
+     * TODO: Move and refactor.
+     */
+    private void tempFileReport() {
+        StringBuilder fileReport = new StringBuilder();
+        for (FileReport report : reportList) {
+            fileReport.append(
+                    "\n\nMetaData:\nFile: " + report.filePath
+                    + "\nTotal Lines: " + report.totalLines + " | Max File Length Violation: "
+                    + (report.totalLines > rule.MAX_FILE_LENGTH)
+                    + "\nLines of Code: " + report.linesOfCode
+                    + " Blank Lines: " + report.blankLines
+                    + " Lines of Comments: " + report.linesOfComments
+                    + " Amount of Comments: " + report.amountOfComments
+                    + "\n\nRules: \nTotal Line Length Violations: " + report.lineLengthViolations.size());
+
+            for (LineLengthViolation lineLength : report.lineLengthViolations) {
+                fileReport.append(
+                        "\nLine Length Violation at line: " + lineLength.lineNumber
+                        + " - Actual Length: " + lineLength.actualLength);
+            }
+            
+            fileReport.append("\n\n\nMethod Declaration Violations below: " + report.methodDeclarationViolations.size());
+            for (MethodDeclarationViolation declarationViolation : report.methodDeclarationViolations) {
+                fileReport.append(
+                        "\n\nParent Class or Interface Length: " + declarationViolation.parentLength
+                        + "\nLine: " + declarationViolation.lineNumber + " | Method: "
+                        + declarationViolation.methodName
+                        + " | Method Length: " + declarationViolation.methodLength
+                        + "\nDescription: " + declarationViolation.declarationViolation);
+            }
+        }
+        // TODO: Add print to Markdown format function and refactor.
+        System.out.println(fileReport.toString());
     }
 
 }

@@ -7,6 +7,7 @@ public class NewRule {
 
     public void newRuleTemplate(FileReport report, String line) {
         // Fill in logic to check line for violation and add result to report.
+        // Do not forget to add support for this part in the FileReport.java file.
     }
 }
 
